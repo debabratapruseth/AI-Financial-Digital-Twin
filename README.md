@@ -94,18 +94,7 @@ You can configure the scenarios by directly updating the respective yaml files. 
 
 The dependency graph is built from the synthetic dependency table using `networkx.DiGraph`.
 
-```text
-Infrastructure
-→ Applications
-→ Business services
-→ Customer segments
-→ Operational and financial effects
-→ Risk metrics
-```
-
-Example validated path:
-
-<>
+![Dependency Plot](https://github.com/debabratapruseth/AI-Financial-Digital-Twin/blob/main/Reference%20Materials/Dependency%20Plot.png)
 
 For a failed node, NetworkX identifies reachable downstream nodes and groups the blast radius by node type. Edge weights are also used for modelled customer-behaviour propagation. The LLM never creates dependencies.
 
