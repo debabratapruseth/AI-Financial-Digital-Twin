@@ -191,33 +191,6 @@ It also reports the best action separately for loss, LCR, cash, operational resi
 
 
 
-## Master notebook guide
-
-The main entry point is `notebooks/master_runner.ipynb`.
-
-| Section | Purpose | Analysis scope |
-|---|---|---|
-| 0–6 | Setup, synthetic bank, baseline, and dependency graph | Shared model foundation |
-| 7 | Runs the selected scenario list independently | Multiple separate runs |
-| Cloud failure propagation | Visualizes the generic `cloud_failure` result | One Section 7 result |
-| Cloud Region Failure | Runs the dedicated eight-hour scenario | Independent `cloud_region_a_8hr` |
-| Cloud Resilience Digital Twin | Deployment, failover, timeline, concentration, and impact | Same independent eight-hour run |
-| 8 | Runs the flagship combined stress | Deterministic `combined_stress` |
-| LCR validation | Reconciles numerator, denominator, and assumptions | Combined stress versus baseline |
-| 9 | Runs Monte Carlo ranges and breach probabilities | Variations of combined stress |
-| MC operational validation | Explains availability and recovery breaches | Combined-stress Monte Carlo |
-| 10 | Tests single and simultaneous management actions | Combined stress |
-| Management Response Decision Lab | Compares strategies, severity, thresholds, value, and residual risk | Combined stress |
-| 11 | Creates the validated executive context and optional AI explanation | Combined-stress workflow |
-| 12 | Displays the CEO/CIO dashboard | Combined stress and combined response |
-| 13 | Answers interactive CEO questions | Combined stress by default |
-| 14 | Exports previously calculated results | No new scenario run |
-| 15 | Creates the final audit/executive package | Catalogue plus combined-stress executive context |
-
-
-
-
-
 ## OpenAI integration
 
 OpenAI is optional. 
@@ -240,7 +213,9 @@ The notebook writes generated artifacts to `data/outputs`, including scenario co
 
 Generated outputs are reproducible when the same code, YAML, and seed are used.
 
-## Installation
+## Master notebook guide
+
+The main entry point is `notebooks/master_runner.ipynb`.
 
 ### Local environment
 
@@ -264,15 +239,11 @@ jupyter notebook notebooks/master_runner.ipynb
 
 The notebook installs missing dependencies and writes outputs back into the repository folder.
 
-## Testing
+### Testing
 
-Run the complete suite with:
 
-```bash
-pytest -q
-```
-
-Tests cover:
+At the time this guide was generated, the suite contained 36 passing tests.
+Key Tests cover:
 
 - scenario loading and deterministic execution;
 - market, liquidity, credit, and KPI calculations;
@@ -287,7 +258,7 @@ Tests cover:
 - securities-sale HQLA reconciliation;
 - executive-context construction and payload compaction.
 
-At the time this guide was generated, the suite contained 36 passing tests.
+
 
 ## Known limitations
 
