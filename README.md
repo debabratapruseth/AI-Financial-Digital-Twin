@@ -45,23 +45,6 @@ flowchart LR
 
 Python is the numerical source of truth. The notebook orchestrates the existing engines; it does not contain an independent calculation model.
 
-## Repository structure
-
-```text
-ai-financial-digital-twin/
-├── configs/
-│   ├── baseline_bank.yaml
-│   ├── risk_limits.yaml
-│   └── scenarios/
-├── data/
-│   └── outputs/
-├── docs/
-├── notebooks/
-│   └── master_runner.ipynb
-├── src/digital_twin/
-├── requirements.txt
-├── README.md
-```
 
 ## Core modules
 
@@ -97,17 +80,15 @@ Scenario files are stored in `configs/scenarios`.
 | `cloud_region_a_8hr` | Dedicated infrastructure-only eight-hour cloud resilience scenario. |
 | `combined_stress` | Flagship simultaneous market, credit, liquidity, customer, and operational stress. |
 
-t.risk_limit_breaches)
-```
 
 ### Independent runs versus a combined scenario
 
 The code runs the engine for three set of scenarios
 a) Individual runs for usd_fall, deposit_run, payment_outage, volatility_shock, cloud_failure and counterparty_default scenarios
 b) Dedicated run for cloud_region_a_8hr scenario focusing on a catastrophic event where bank's primary cloud region goes down and bank has to fall back on secondary cloud region in a given time. This scenario is elaborated in detail further.
-c) combined_stress scenario where multiple incidents happen parallely
+c) combined_stress scenario where multiple stress incidents happen parallely.
 
-You can edit the scenario by directly updating the respective yaml files. You can also add new scenarios. 
+You can configure the scenarios by directly updating the respective yaml files. You can also add new scenarios. 
 
 ## Dependency graph
 
