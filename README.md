@@ -450,12 +450,6 @@ The LLM may explain supplied results. It must not:
 - claim regulatory validity or economic ROI.
 
 
-## Outputs
-
-The notebook writes generated artifacts to `data/outputs`, including scenario comparisons, Monte Carlo results, propagation traces, executive summaries, and management-action comparisons.
-
-Generated results are reproducible when the same code, YAML configuration, and random seed are used.
-
 ## Master notebook guide
 
 The main entry point is `notebooks/master_runner.ipynb`.
@@ -469,6 +463,14 @@ The main entry point is `notebooks/master_runner.ipynb`.
 5. Choose **Runtime → Run all**.
 
 The notebook installs missing dependencies and writes outputs back into the repository folder.
+
+We have used Google Drive as Repo and Google Colab as IDE. You can use your own local repo or github and IDE of your choice. 
+
+## Outputs
+
+The notebook writes generated artifacts to `data/outputs`, including scenario comparisons, Monte Carlo results, propagation traces, executive summaries, and management-action comparisons.
+
+Generated results are reproducible when the same code, YAML configuration, and random seed are used.
 
 ### Testing and validation 
 
