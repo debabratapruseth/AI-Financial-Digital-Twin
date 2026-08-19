@@ -65,6 +65,14 @@ Python is the numerical source of truth. The notebook orchestrates the existing 
 | `visualizations.py` | Produces Plotly graphs and dashboards. |
 | `ai_explainer.py` | Builds compact validated LLM payloads and optional explanations. |
 
+## Dependency graph
+
+The dependency graph is built from the synthetic dependencies ( coded in src/digital_twin/data_generator.py ) using  `Networkx.DiGraph`. You can edit the dependency data to add more assets and dependencies based on your organization use case.
+
+![Dependency Plot](https://github.com/debabratapruseth/AI-Financial-Digital-Twin/blob/main/Reference%20Materials/Dependency%20Plot.png)
+
+For a failed node, NetworkX identifies reachable downstream nodes and groups the blast radius by node type. Edge weights are also used for modelled customer-behaviour propagation. The LLM never creates dependencies.
+
 ## Scenario library
 
 Scenario files are stored in `configs/scenarios`.
@@ -81,7 +89,7 @@ Scenario files are stored in `configs/scenarios`.
 | `combined_stress` | Flagship simultaneous market, credit, liquidity, customer, and operational stress. |
 
 
-### Independent runs versus a combined scenario
+## Independent runs versus a combined scenario
 
 The code runs the engine for three set of scenarios
 a) Individual runs for usd_fall, deposit_run, payment_outage, volatility_shock, cloud_failure and counterparty_default scenarios
@@ -90,17 +98,18 @@ c) combined_stress scenario where multiple stress incidents happen parallely.
 
 You can configure the scenarios by directly updating the respective yaml files. You can also add new scenarios. 
 
-## Dependency graph
+### (A) Individual Scenario Runs
+Runs the selected scenario sets and produces results independently.
+Input: Scenario files usd_fall, deposit_run, payment_outage, volatility_shock, cloud_failure, and counterparty_default. 
+Output: individual_results and scenario_table. 
 
-The dependency graph is built from the synthetic dependency table using `networkx.DiGraph`.
+![Individual Scenario Runs](https://github.com/debabratapruseth/AI-Financial-Digital-Twin/blob/main/Reference%20Materials/Individual%20Scenario%20Comparision.png)
 
-![Dependency Plot](https://github.com/debabratapruseth/AI-Financial-Digital-Twin/blob/main/Reference%20Materials/Dependency%20Plot.png)
 
-For a failed node, NetworkX identifies reachable downstream nodes and groups the blast radius by node type. Edge weights are also used for modelled customer-behaviour propagation. The LLM never creates dependencies.
+### (B) Cloud Region - eight-hour downtime scenario
 
-## Cloud Region - eight-hour downtime scenario
-
-Configuration: `configs/scenarios/cloud_region_a_8hr.yaml`
+Input: Scenario files cloud_region_a_8hr
+Scenario Detail:
 
 ```text
 Hour 0:     Cloud Region A fails
@@ -113,8 +122,13 @@ After 8:    125% temporary capacity clears the backlog
 
 The scenario specifies the infrastructure failure only. NetworkX derives affected applications, business services, customers, and risk nodes. Application deployment data determines whether each application has a Region B backup. SimPy calculates the operational timeline.
 
+![Cloud Application Deployment Map](https://github.com/debabratapruseth/AI-Financial-Digital-Twin/blob/main/Reference%20Materials/Cloud%20Application%20Deployment%20Map.png)
 
-## Flagship combined stress
+![Cloud Failure Propagation](https://github.com/debabratapruseth/AI-Financial-Digital-Twin/blob/main/Reference%20Materials/Cloud%20Failure%20Propagation.png)
+
+![Cloud Failure and Recovery Impact](https://github.com/debabratapruseth/AI-Financial-Digital-Twin/blob/main/Reference%20Materials/Cloud%20Failure%20and%20Recovery%20Impact.png)
+
+### (C) Flagship combined stress
 
 The flagship scenario simultaneously applies:
 
