@@ -311,8 +311,9 @@ This demonstrates the core value of a Digital Twin:
 > Don’t only ask what failed. Ask what would change if the system were designed differently.
 
 ### (C) Flagship combined stress
-
-The flagship scenario simultaneously applies:
+ 
+Real crises rarely happen one risk domain at a time. The flagship combined_stress scenario therefore applies several shocks simultaneously.
+It includes:
 
 - a 10% USD shock;
 - a 2.0 volatility multiplier;
@@ -321,20 +322,62 @@ The flagship scenario simultaneously applies:
 - a credit PD multiplier;
 - a cloud/payment impairment with its own timing and capacity assumptions.
 
+The result is a cross-risk scenario spanning:
+    Market
+       +
+    Credit
+       +
+    Liquidity
+       +
+    Customer Behaviour
+       +
+    Technology
+       +
+    Operations
+       ↓
+    Combined Financial & Operational Impact
+
 ![Combined Stress Impact Map](https://github.com/debabratapruseth/AI-Financial-Digital-Twin/blob/main/Reference%20Materials/Combined%20Stress%20Impact%20Map.png)
+
+The engine calculates the combined scenario as one simulation rather than treating independent scenario results as additive.
 
 ![Combined Stress Impact Value](https://github.com/debabratapruseth/AI-Financial-Digital-Twin/blob/main/Reference%20Materials/Combined%20Stress%20Impact%20Values.png)
 
+#### Prototype LCR and validation
+
+The project calculates a simplified prototype Liquidity Coverage Ratio:
+
+                        HQLA
+    Prototype LCR = ----------------
+                    Net Cash Outflows
+
+The calculation includes an explicit bridge covering modeled HQLA and cash-outflow components. The notebook also executes internal reconciliation checks before using the results downstream. Current prototype assumptions include items such as:
+
+* a securities haircut;
+* USD billions as the primary financial unit;
+* a fixed eligible inflow cap;
+* simplified modeled outflow components.
+
+[!WARNING]
+> This is a prototype liquidity metric, not a regulatory LCR implementation or determination of regulatory compliance.
+
+The deliberately high synthetic baseline values reflect prototype assumptions rather than regulatory calibration.
 
 #### Monte Carlo simulation
 
-The notebook runs 1,000 stochastic variations of `combined_stress` using seed 42. It samples:
+One deterministic scenario gives one modeled outcome. Real stress contains uncertainty.
 
-- USD shock;
-- volatility multiplier;
-- Retail, SME, and Corporate withdrawal rates;
-- operational recovery duration;
-- counterparty default-loss multiplier.
+The notebook therefore runs 1,000 stochastic variations of combined_stress using seed 42.
+
+The current Monte Carlo design samples:
+
+* USD shock;
+* volatility multiplier;
+* Retail withdrawal rate;
+* SME withdrawal rate;
+* Corporate withdrawal rate;
+* operational recovery duration;
+* counterparty default-loss multiplier.
 
 It reports P5, median, P95, and separate breach probabilities for LCR, cash, CET1, payment availability, loss, and recovery time.
 
@@ -342,11 +385,27 @@ The current Monte Carlo is designed for combined stress only.
 
 ![Montecarlo Simulation](https://github.com/debabratapruseth/AI-Financial-Digital-Twin/blob/main/Reference%20Materials/Montecarlo%20Simulation.png)
 
-#### Management actions
+[!IMPORTANT]
+> Monte Carlo frequencies are simulation frequencies under the configured prototype assumptions. They are not calibrated estimates of real-world event probabilities.
 
-For the combined stress analysis, the code also recommends follow up management action.
+Extreme breach frequencies deserve investigation. If every simulated run breaches an operational limit, the notebook does not simply display 100% and move on. It analyzes the relationship between:
 
-Supported actions:
+* sampled recovery duration;
+* payment availability;
+* recovery time;
+* configured warning thresholds;
+* configured critical thresholds.
+
+
+#### Management Response Decision Lab
+
+A Digital Twin becomes more useful when it can answer:
+
+    What happens if management acts?
+
+The project therefore reruns the full combined_stress simulation with management interventions.
+
+Supported actions include:
 
 | Action | Primary risk domain |
 |---|---|
@@ -357,7 +416,7 @@ Supported actions:
 | Increase FX Hedge | Market risk |
 | Contact High-Risk Corporate Depositors | Liquidity/customer behaviour |
 
-Every action modifies explicit Python simulation parameters and triggers a complete scenario rerun.
+Each action modifies explicit simulation parameters and triggers a complete scenario rerun. The engine does not simply attach a manually entered benefit to an action.
 
 The decision lab compares:
 
@@ -369,15 +428,18 @@ vs
 Combined Response
 ```
 
-It also reports the best action separately for loss, LCR, cash, operational resilience, customer impact, and balanced resilience. It does not claim a universal best action.
+Combined management actions are simulated simultaneously through one Digital Twin rerun.
 
+Individual action benefits are not simply added together.
+
+This matters because management actions can interact through shared system constraints.
 
 
 ## OpenAI integration
 
-OpenAI is optional. 
+OpenAI integration is optional. 
 
-The integration sends a compact validated executive context containing calculated metrics, breaches, propagation paths, Monte Carlo summaries, management actions, thresholds, severity transitions, and residual risks. Raw operational time series and unnecessary simulation records are excluded.
+The LLM is used as an executive interpretation layer—not as a financial calculation engine.
 
 The LLM may explain supplied results. It must not:
 
@@ -387,29 +449,16 @@ The LLM may explain supplied results. It must not:
 - change scenario assumptions or thresholds;
 - claim regulatory validity or economic ROI.
 
-Without a key, the project returns a deterministic Python summary.
 
 ## Outputs
 
 The notebook writes generated artifacts to `data/outputs`, including scenario comparisons, Monte Carlo results, propagation traces, executive summaries, and management-action comparisons.
 
-Generated outputs are reproducible when the same code, YAML, and seed are used.
+Generated results are reproducible when the same code, YAML configuration, and random seed are used.
 
 ## Master notebook guide
 
 The main entry point is `notebooks/master_runner.ipynb`.
-
-### Local environment
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
-python -m pip install -e .
-pytest -q
-jupyter notebook notebooks/master_runner.ipynb
-```
 
 ### Google Colab
 
@@ -421,10 +470,11 @@ jupyter notebook notebooks/master_runner.ipynb
 
 The notebook installs missing dependencies and writes outputs back into the repository folder.
 
-### Testing
+### Testing and validation 
 
 
 At the time this guide was generated, the suite contained 36 passing tests.
+
 Key Tests cover:
 
 - scenario loading and deterministic execution;
@@ -441,20 +491,82 @@ Key Tests cover:
 - executive-context construction and payload compaction.
 
 
-
 ## Known limitations
 
-- All data is synthetic and deliberately compact.
-- The LCR is simplified and non-regulatory.
-- Market risk is sensitivity-based rather than full revaluation.
-- Credit risk does not contain full migration, contagion, or wrong-way-risk modelling.
-- Operational availability is based on configured regional capacity fractions.
-- Customer impact is an aggregate approximation, not individual event tracking.
-- Monte Carlo distributions are illustrative and not empirically calibrated.
-- Management action costs are incomplete, so economic ROI cannot be claimed.
-- RWA generally remains unchanged during stress.
-- The model has not been independently validated, calibrated, or back-tested against a real bank.
+This repository is a feasibility prototype, not a production banking model.
+
+Current limitations include:
+
+* All data is synthetic and deliberately compact.
+* Prototype assumptions are simplified.
+* The LCR calculation is simplified and non-regulatory.
+* Market risk is sensitivity-based rather than full instrument revaluation.
+* Credit risk does not implement full migration, contagion, or wrong-way-risk modeling.
+* Operational availability is based on configured regional-capacity fractions.
+* Customer impact is modeled in aggregate rather than through individual event tracking.
+* Monte Carlo distributions are illustrative and not empirically calibrated.
+* Some operational Monte Carlo variables remain deterministic.
+* Management-action costs are incomplete.
+* Economic ROI therefore cannot be claimed for most actions.
+* RWA generally remains unchanged during stress.
+* The model has not been independently validated.
+* The model has not been calibrated or back-tested against a real bank.
+* Results should not be interpreted as forecasts or real-world event probabilities.
 
 Production use would require governed source data, lineage, access control, scenario approval, calibration, independent validation, monitoring, back-testing, change control, and regulatory interpretation.
 
+## Extending the Digital Twin
 
+The prototype is deliberately compact so that its mechanics remain understandable.
+
+Possible extensions include:
+
+Technology and operational risk
+
+* additional cloud regions;
+* active-active architectures;
+* application-specific recovery times;
+* cyber incidents;
+* vendor outages;
+* network failures;
+* data-center dependencies.
+
+Financial risk
+
+* interest-rate shocks;
+* securities repricing;
+* richer FX portfolios;
+* collateral dynamics;
+* wholesale funding;
+* intraday liquidity.
+
+Credit risk
+
+* rating migration;
+* sector contagion;
+* correlated defaults;
+* concentration risk;
+* wrong-way risk.
+
+Customer behaviour
+
+* dynamic withdrawal curves;
+* customer confidence effects;
+* channel-specific behavior;
+* nonlinear deposit responses.
+
+Simulation
+
+* stochastic backup activation;
+* stochastic backup capacity;
+* correlated Monte Carlo variables;
+* empirically calibrated distributions;
+* scenario ensembles.
+
+AI
+
+* natural-language scenario creation;
+* scenario validation agents;
+* retrieval over policies and playbooks;
+* evidence-linked executive reports;
+* human approval workflows.
