@@ -14,7 +14,7 @@ An end-to-end, auditable prototype of a synthetic USD 100 billion bank. The proj
 - Market, credit, liquidity, capital, and operational impact calculations.
 - Monte Carlo ranges and per-metric breach probabilities.
 - Management actions evaluated through full scenario reruns.
-- Plotly operational, risk, cloud, and executive dashboards.
+- Plotly operational, risk, and executive dashboards.
 - Optional OpenAI explanations over compact, validated Python results.
 
 ## Architecture
@@ -59,13 +59,9 @@ ai-financial-digital-twin/
 ├── notebooks/
 │   └── master_runner.ipynb
 ├── src/digital_twin/
-├── tests/
 ├── requirements.txt
 ├── README.md
-└── PROJECT_GUIDE.md
 ```
-
-Do not upload `.venv`, `__pycache__`, `.pytest_cache`, or `.DS_Store` when copying the repository to Google Drive or GitHub.
 
 ## Core modules
 
@@ -96,35 +92,22 @@ Scenario files are stored in `configs/scenarios`.
 | `deposit_run` | Applies segment-level deposit-withdrawal stress. |
 | `payment_outage` | Tests a payment-processing outage. |
 | `volatility_shock` | Applies a market-volatility multiplier. |
-| `cloud_failure` | Older generic cloud-failure scenario used in the individual comparison. |
+| `cloud_failure` | Generic cloud-failure scenario. |
 | `counterparty_default` | Defaults a named synthetic counterparty. |
 | `cloud_region_a_8hr` | Dedicated infrastructure-only eight-hour cloud resilience scenario. |
 | `combined_stress` | Flagship simultaneous market, credit, liquidity, customer, and operational stress. |
 
-Run one scenario with:
-
-```python
-from digital_twin.data_generator import generate_virtual_bank
-from digital_twin.scenario_engine import ScenarioEngine
-
-bank = generate_virtual_bank(seed=42)
-engine = ScenarioEngine(bank)
-result = engine.run("combined_stress")
-
-print(result.metrics)
-print(result.risk_limit_breaches)
+t.risk_limit_breaches)
 ```
 
 ### Independent runs versus a combined scenario
 
-This list runs scenarios separately:
+The code runs the engine for three set of scenarios
+a) Individual runs for usd_fall, deposit_run, payment_outage, volatility_shock, cloud_failure and counterparty_default scenarios
+b) Dedicated run for cloud_region_a_8hr scenario focusing on a catastrophic event where bank's primary cloud region goes down and bank has to fall back on secondary cloud region in a given time. This scenario is elaborated in detail further.
+c) combined_stress scenario where multiple incidents happen parallely
 
-```python
-scenario_names = ["usd_fall", "deposit_run", "counterparty_default"]
-results = [engine.run(name) for name in scenario_names]
-```
-
-It produces three independent results. It does not combine the shocks. A true combined scenario must define all shocks in one YAML file, such as `combined_stress.yaml`.
+You can edit the scenario by directly updating the respective yaml files. You can also add new scenarios. 
 
 ## Dependency graph
 
@@ -141,19 +124,11 @@ Infrastructure
 
 Example validated path:
 
-```text
-Cloud Region A
-→ Domestic Payments
-→ Corporate
-→ Corporate Deposits
-→ Deposit Outflows
-→ Liquidity Position
-→ LCR
-```
+<>
 
 For a failed node, NetworkX identifies reachable downstream nodes and groups the blast radius by node type. Edge weights are also used for modelled customer-behaviour propagation. The LLM never creates dependencies.
 
-## Cloud Region A eight-hour scenario
+## Cloud Region - eight-hour downtime scenario
 
 Configuration: `configs/scenarios/cloud_region_a_8hr.yaml`
 
@@ -168,27 +143,6 @@ After 8:    125% temporary capacity clears the backlog
 
 The scenario specifies the infrastructure failure only. NetworkX derives affected applications, business services, customers, and risk nodes. Application deployment data determines whether each application has a Region B backup. SimPy calculates the operational timeline.
 
-### Payment backlog
-
-Every hour:
-
-```text
-New backlog
-= previous backlog
-+ new payment arrivals
-− processed payments
-```
-
-Processed payments are limited by effective capacity:
-
-```text
-Normal:            USD 0.32bn/hour
-Before failover:   0% of normal
-Region B active:   70% of normal
-Backlog recovery: 125% of normal
-```
-
-Customer impact is an aggregate estimate based on graph-exposed customers, capacity shortfall, and configured outage sensitivity. It is not an individual-customer queue.
 
 ## Flagship combined stress
 
@@ -201,100 +155,16 @@ The flagship scenario simultaneously applies:
 - a credit PD multiplier;
 - a cloud/payment impairment with its own timing and capacity assumptions.
 
-The cloud impairment inside `combined_stress.yaml` is not the dedicated eight-hour cloud scenario. Each has its own YAML configuration.
-
 ## Main calculations
 
 ### Market loss
-
-```text
-Market loss = FX revaluation loss + volatility loss
-```
-
-FX revaluation is applied to synthetic exposure after hedging. Volatility loss uses the configured multiplier and sensitivity.
-
 ### Credit loss
-
-```text
-Expected credit loss = EAD × PD × LGD
-```
-
-The credit engine also calculates named-counterparty default loss using synthetic exposure, collateral, and LGD.
-
 ### Deposit outflow and liquidity
-
-```text
-Segment outflow
-= deposits
-× scenario withdrawal rate
-× withdrawal sensitivity
-```
-
-An operational outage can add graph-derived behavioural withdrawal pressure. Deposit outflow consumes liquidity but is not itself treated as accounting loss.
-
 ### Prototype LCR
-
-```text
-Prototype LCR
-= eligible HQLA
-÷ stressed 30-day net cash outflows
-```
-
-Eligible HQLA contains non-negative eligible cash plus securities after the configured haircut. This is a simplified prototype formula, not a regulatory LCR implementation.
-
 ### Operational loss
-
-```text
-Operational loss
-= outage-duration cost
-+ payment-backlog cost
-+ customer-impact cost
-```
-
 ### Total estimated loss
-
-```text
-Total estimated loss
-= market loss
-+ credit loss
-+ operational loss
-+ funding cost
-+ realised asset-sale loss
-```
-
-Deposit outflow, cash consumption, and HQLA consumption are reported separately and are not added directly to P&L loss.
-
 ### Capital
-
-```text
-Stressed CET1 capital = baseline CET1 − total estimated loss
-CET1 ratio = stressed CET1 capital ÷ prototype RWA
-```
-
-## Risk limits and severity
-
-Configured limits are loaded from `configs/risk_limits.yaml`.
-
-Every configured metric receives one mutually exclusive status:
-
-```text
-Within Limit
-Warning
-Critical
-```
-
-The management analysis also reports a non-regulatory score:
-
-```text
-Within Limit = 0
-Warning      = 1
-Critical     = 2
-
-Prototype Risk Severity Score
-= sum of severity points across configured metrics
-```
-
-This score is a transparent prototype management aid, not a regulatory risk score.
+### Risk limits and severity
 
 ## Monte Carlo simulation
 
@@ -308,7 +178,7 @@ The notebook runs 1,000 stochastic variations of `combined_stress` using seed 42
 
 It reports P5, median, P95, and separate breach probabilities for LCR, cash, CET1, payment availability, loss, and recovery time.
 
-The current Monte Carlo is designed for combined stress. Changing only the scenario name to `cloud_region_a_8hr` would still introduce the market, withdrawal, and credit random variables defined in `monte_carlo.py`; that would not be a pure cloud-only uncertainty experiment.
+The current Monte Carlo is designed for combined stress. 
 
 ## Management actions
 
@@ -337,9 +207,7 @@ Combined Response
 
 It also reports the best action separately for loss, LCR, cash, operational resilience, customer impact, and balanced resilience. It does not claim a universal best action.
 
-Combined actions are passed together into one `ScenarioEngine.run()` call. Their improvements are never calculated by adding independent action results.
 
-Action costs are incomplete. The prototype must not claim economic ROI unless all relevant costs and monetised benefits are modelled.
 
 ## Master notebook guide
 
@@ -364,34 +232,13 @@ The main entry point is `notebooks/master_runner.ipynb`.
 | 14 | Exports previously calculated results | No new scenario run |
 | 15 | Creates the final audit/executive package | Catalogue plus combined-stress executive context |
 
-### Relationship between Sections 13, 14, and 15
 
-```mermaid
-flowchart TD
-    PRIOR[Results from Sections 7–12] --> Q[Section 13: ask/explain]
-    PRIOR --> EXPORT[Section 14: export files]
-    PRIOR --> PACKAGE[Section 15: audit and executive package]
 
-    Q --> TEMP[Temporary answer or temporary override rerun]
-    EXPORT --> FILES[data/outputs]
-    PACKAGE --> SUMMARY[Validated summary]
-```
 
-Section 13 does not automatically update Sections 14 or 15. A temporary override inside `ask_ceo()` is explained but is not assigned to the shared `combined` result.
 
 ## OpenAI integration
 
-OpenAI is optional. Set the key as an environment variable or a Google Colab secret:
-
-```text
-OPENAI_API_KEY
-```
-
-Optionally set:
-
-```text
-OPENAI_MODEL
-```
+OpenAI is optional. 
 
 The integration sends a compact validated executive context containing calculated metrics, breaches, propagation paths, Monte Carlo summaries, management actions, thresholds, severity transitions, and residual risks. Raw operational time series and unnecessary simulation records are excluded.
 
@@ -475,10 +322,4 @@ At the time this guide was generated, the suite contained 36 passing tests.
 
 Production use would require governed source data, lineage, access control, scenario approval, calibration, independent validation, monitoring, back-testing, change control, and regulatory interpretation.
 
-## Additional documentation
-
-- [README](README.md)
-- [Architecture](docs/architecture.md)
-- [Methodology](docs/methodology.md)
-- [Assumptions](docs/assumptions.md)
 
