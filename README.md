@@ -1,57 +1,120 @@
 # AI-Financial-Digital-Twin
 
-An end-to-end, auditable prototype of a synthetic USD 100 billion bank. The project demonstrates how technology, operational, market, liquidity, credit, customer-behaviour, and capital risks can propagate through an interconnected banking model.
+An end-to-end, auditable prototype for simulating how financial, operational, technology, and customer risks propagate through a synthetic USD 100 billion bank.
+
+The project creates a virtual banking environment where you can inject stress events, trace their impact through interconnected systems, quantify financial and operational consequences, test management responses, and optionally use an LLM to translate validated Python simulation results into an executive narrative.
 
 > [!IMPORTANT]
-> All data and results are synthetic. This prototype is not a regulatory stress-testing model, financial advice, an approved bank risk model, or a substitute for independent model validation.
+> Synthetic prototype only. All institutions, customers, counterparties, exposures, scenarios, metrics, and results are synthetic. This project is not a regulatory stress-testing model, financial advice, an approved bank risk model, or a substitute for independent model validation.
+
+## Why this project?
+
+A cloud outage is rarely just a technology problem. Consider this chain:
+
+    Cloud Region Failure
+            ↓
+    Application Disruption
+            ↓
+    Payment Service Degradation
+            ↓
+    Payment Backlog
+            ↓
+    Customer Impact
+            ↓
+    Deposit Withdrawals
+            ↓
+    Liquidity Consumption
+            ↓
+    LCR / Risk-Limit Impact
+
+Traditional risk models often analyze these domains separately. This prototype explores a different question:
+> Can a Digital Twin connect technology, operations, customers, liquidity, market risk, credit risk, and capital into one explainable simulation? 
+The project creates a synthetic bank that can be deliberately stressed without using real customer or institutional data.
+
 
 ## What the project demonstrates
 
-- A synthetic bank balance sheet, customer base, counterparties, applications, cloud deployments, payment services, and risk limits.
-- YAML-driven deterministic scenarios.
-- NetworkX dependency and causal-propagation paths.
-- SimPy hour-by-hour payment processing, outage, failover, backlog, and recovery.
-- Market, credit, liquidity, capital, and operational impact calculations.
-- Monte Carlo ranges and per-metric breach probabilities.
-- Management actions evaluated through full scenario reruns.
-- Plotly operational, risk, and executive dashboards.
-- Optional OpenAI explanations over compact, validated Python results.
+The Digital Twin combines:
+
+* A reproducible synthetic USD 100 billion bank.
+* Balance-sheet, customer, counterparty, application, infrastructure, cloud, and payment-system data.
+* YAML-driven deterministic stress scenarios.
+* NetworkX dependency graphs and causal propagation paths.
+* SimPy hour-by-hour outage, failover, capacity, payment backlog, and recovery simulation.
+* Market, credit, liquidity, capital, customer, and operational impact calculations.
+* Risk-limit monitoring with warning and critical classifications.
+* Monte Carlo simulation for ranges and breach frequencies.
+* Management-action evaluation through complete scenario reruns.
+* Plotly operational, risk, dependency, and executive dashboards.
+* Optional OpenAI-based interpretation over compact, validated Python results.
+* Reproducible CSV, JSON, and Markdown outputs.
+* Automated tests covering the major calculation and simulation paths.
 
 ## Architecture
 
 ```mermaid
-flowchart LR
-    YAML[Bank, scenario and risk-limit YAML] --> BANK[Synthetic BankState]
-    BANK --> GRAPH[NetworkX dependency graph]
-    BANK --> ENGINE[ScenarioEngine]
+flowchart TD
+
+    CONFIG["Bank, Scenario & Risk-Limit YAML"] --> BANK["Synthetic BankState"]
+
+    BANK --> GRAPH["NetworkX Dependency Graph"]
+
+    BANK --> ENGINE["ScenarioEngine"]
+
     GRAPH --> ENGINE
 
-    ENGINE --> MARKET[Market engine]
-    ENGINE --> CREDIT[Credit engine]
-    ENGINE --> LIQ[Liquidity engine]
-    ENGINE --> OPS[SimPy operational simulator]
+    ENGINE --> MARKET["Market Engine"]
 
-    MARKET --> KPI[Metrics and risk limits]
+    ENGINE --> CREDIT["Credit Engine"]
+
+    ENGINE --> LIQ["Liquidity Engine"]
+
+    ENGINE --> OPS["SimPy Operational Simulator"]
+
+    MARKET --> KPI["Calculated Metrics"]
+
     CREDIT --> KPI
+
     LIQ --> KPI
+
     OPS --> KPI
 
-    KPI --> MC[Monte Carlo]
-    KPI --> ACTIONS[Management strategies]
-    KPI --> VIZ[Plotly dashboards]
-    KPI --> CONTEXT[Validated executive context]
-    CONTEXT --> LLM[Optional OpenAI explanation]
+    KPI --> LIMITS["Risk Limits & Severity"]
+
+    KPI --> MC["Monte Carlo Engine"]
+
+    KPI --> ACTIONS["Management Action Engine"]
+
+    KPI --> VIZ["Plotly Dashboards"]
+
+    LIMITS --> CONTEXT["Validated Executive Context"]
+
+    MC --> CONTEXT
+
+    ACTIONS --> CONTEXT
+
+    GRAPH --> CONTEXT
+
+    CONTEXT --> LLM["Optional OpenAI Explanation"]
+
+    CONTEXT --> EXPORT["CSV / JSON / Markdown"]
+
+    style ENGINE fill:#2563eb,color:#fff
+
+    style CONTEXT fill:#059669,color:#fff
+
+    style LLM fill:#7c3aed,color:#fff
 ```
 
-Python is the numerical source of truth. The notebook orchestrates the existing engines; it does not contain an independent calculation model.
+The notebook orchestrates the existing engines; it does not contain an independent calculation model.
 
 
 ## Core modules
 
 | Module | Responsibility |
 |---|---|
-| `data_generator.py` | Creates the reproducible synthetic bank datasets. |
-| `bank_state.py` | Stores bank data and scenario result objects. |
+| `data_generator.py` | Creates reproducible synthetic bank datasets and dependencies. |
+| `bank_state.py` | Stores bank data and scenario-result objects. |
 | `config.py` | Loads baseline, risk-limit, and scenario YAML files. |
 | `dependency_graph.py` | Builds the NetworkX graph, blast radius, and propagation paths. |
 | `scenario_engine.py` | Coordinates each complete scenario run. |
@@ -65,13 +128,34 @@ Python is the numerical source of truth. The notebook orchestrates the existing 
 | `visualizations.py` | Produces Plotly graphs and dashboards. |
 | `ai_explainer.py` | Builds compact validated LLM payloads and optional explanations. |
 
-## Dependency graph
+## Dependency graph and risk propagation 
 
-The dependency graph is built from the synthetic dependencies ( coded in src/digital_twin/data_generator.py ) using  `Networkx.DiGraph`. You can edit the dependency data to add more assets and dependencies based on your organization use case.
+A bank is not just a balance sheet. It is a network of infrastructure, applications, services, customers, counterparties, and financial-risk relationships. The project represents those relationships using NetworkX.DiGraph.
+
+Synthetic dependencies are defined in: src/digital_twin/data_generator.py
+
+They can be extended to represent additional assets, services, infrastructure, customers, or dependencies for other use cases.
 
 ![Dependency Plot](https://github.com/debabratapruseth/AI-Financial-Digital-Twin/blob/main/Reference%20Materials/Dependency%20Plot.png)
 
-For a failed node, NetworkX identifies reachable downstream nodes and groups the blast radius by node type. Edge weights are also used for modelled customer-behaviour propagation. The LLM never creates dependencies.
+For a failed node, the graph engine identifies reachable downstream nodes and groups the resulting blast radius by node type.
+
+The graph is also used to identify:
+
+* critical nodes;
+* high betweenness-centrality nodes;
+* single points of failure;
+* cloud concentration risk;
+* affected applications;
+* affected business services;
+* affected customer segments;
+* financial and risk nodes;
+* material propagation paths.
+
+Edge weights can participate in modeled customer-behaviour propagation.
+
+> [!NOTE]
+The LLM does not create graph dependencies. Propagation paths supplied to the LLM come from the Python Digital Twin.
 
 ## Scenario library
 
@@ -88,28 +172,47 @@ Scenario files are stored in `configs/scenarios`.
 | `cloud_region_a_8hr` | Dedicated infrastructure-only eight-hour cloud resilience scenario. |
 | `combined_stress` | Flagship simultaneous market, credit, liquidity, customer, and operational stress. |
 
+Scenarios can be modified directly through their YAML configuration files. New scenarios can also be added without rebuilding the core simulation architecture.
 
-## Independent runs versus a combined scenario
+## Three level of stress testing 
 
-The code runs the engine for three set of scenarios
-a) Individual runs for usd_fall, deposit_run, payment_outage, volatility_shock, cloud_failure and counterparty_default scenarios
-b) Dedicated run for cloud_region_a_8hr scenario focusing on a catastrophic event where bank's primary cloud region goes down and bank has to fall back on secondary cloud region in a given time. This scenario is elaborated in detail further.
-c) combined_stress scenario where multiple stress incidents happen parallely.
+The master notebook demonstrates three complementary ways of using the Digital Twin.
+
+ A. Individual Scenario > Understand isolated shocks
+
+ B. Cloud Resilience Scenario > Understand detailed operational propagation
+
+ C. Combined Stress > Understand simultaneous cross-risk stress
 
 You can configure the scenarios by directly updating the respective yaml files. You can also add new scenarios. 
 
 ### (A) Individual Scenario Runs
-Runs the selected scenario sets and produces results independently.
-Input: Scenario files usd_fall, deposit_run, payment_outage, volatility_shock, cloud_failure, and counterparty_default. 
-Output: individual_results and scenario_table. 
+
+The first experiment runs six shocks independently:
+
+    usd_fall
+    deposit_run
+    payment_outage
+    volatility_shock
+    cloud_failure
+    counterparty_default
+
+Each scenario starts from the same synthetic baseline. This makes it easier to understand the isolated effect of each shock before combining them.
+
+Input: Individual scenario YAML definitions.
+
+Primary outputs: individual_results ; scenario_table
+
+The resulting comparison highlights how different shocks affect financial and operational KPIs.
 
 ![Individual Scenario Runs](https://github.com/debabratapruseth/AI-Financial-Digital-Twin/blob/main/Reference%20Materials/Individual%20Scenario%20Comparision.png)
 
 
-### (B) Cloud Region - eight-hour downtime scenario
+### (B) Cloud Region A - 8 Hour Failure 
 
-Input: Scenario files cloud_region_a_8hr
-Scenario Detail:
+This is the project’s dedicated operational-resilience experiment. Imagine the bank’s primary cloud region suddenly becomes unavailable.
+
+The configured scenario is:
 
 ```text
 Hour 0:     Cloud Region A fails
@@ -120,13 +223,92 @@ Hour 8:     Region A recovers
 After 8:    125% temporary capacity clears the backlog
 ```
 
-The scenario specifies the infrastructure failure only. NetworkX derives affected applications, business services, customers, and risk nodes. Application deployment data determines whether each application has a Region B backup. SimPy calculates the operational timeline.
+The YAML defines the infrastructure shock.
+
+It does not manually specify every downstream business consequence. Instead:
+
+1. NetworkX identifies affected downstream dependencies.
+2. Application deployment data determines backup availability.
+3. SimPy models processing capacity and payment queues over time.
+4. Customer and financial models calculate downstream effects.
+5. The ScenarioEngine consolidates the resulting KPIs and risk-limit impacts.
+
+This separation is central to the Digital Twin architecture.
+
+Applications contain deployment attributes such as:
+
+    Primary Region
+    Backup Region
+    Backup Mode
+    Failover Time
+    Normal Capacity
+    Backup Capacity
+    Criticality
+
+The Digital Twin can therefore distinguish between applications that:
+
+* are directly hosted in the failed region;
+* have a designated backup;
+* successfully fail over;
+* operate with reduced capacity;
+* have no usable backup.
 
 ![Cloud Application Deployment Map](https://github.com/debabratapruseth/AI-Financial-Digital-Twin/blob/main/Reference%20Materials/Cloud%20Application%20Deployment%20Map.png)
 
+NetworkX traces the validated downstream paths created by the infrastructure failure. The blast radius is analyzed across:
+
+    Infrastructure
+          ↓
+    Applications
+          ↓
+    Business Services
+          ↓
+    Customer Segments
+          ↓
+    Financial / Risk Nodes
+
 ![Cloud Failure Propagation](https://github.com/debabratapruseth/AI-Financial-Digital-Twin/blob/main/Reference%20Materials/Cloud%20Failure%20Propagation.png)
 
+Restoring an application does not necessarily mean the business has fully recovered. Payments can continue accumulating while processing capacity is impaired.The simulator therefore distinguishes:
+
+    Infrastructure Recovery
+              ↓
+    Processing Capacity Restored
+              ↓
+    Existing Payment Backlog
+              ↓
+    Queue Clearance
+              ↓
+    Full Operational Recovery
+
+This allows the prototype to model both service restoration and backlog clearance.
+
 ![Cloud Failure and Recovery Impact](https://github.com/debabratapruseth/AI-Financial-Digital-Twin/blob/main/Reference%20Materials/Cloud%20Failure%20and%20Recovery%20Impact.png)
+
+The above scenario can be rerun with parameter overrides. For example 
+
+    cloud_1hr_backup = engine.run(
+        'cloud_region_a_8hr',
+        overrides={
+            'operational': {
+                'backup_activation_delay_hours': 1
+            }
+        }
+    )
+This allows a controlled comparison between the original three-hour activation and a hypothetical one-hour activation.
+
+The Digital Twin compares impacts such as:
+
+* payment backlog;
+* customers affected;
+* deposit outflow;
+* operational loss;
+* liquidity consumed;
+* LCR;
+* total recovery time.
+
+This demonstrates the core value of a Digital Twin:
+> Don’t only ask what failed. Ask what would change if the system were designed differently.
 
 ### (C) Flagship combined stress
 
