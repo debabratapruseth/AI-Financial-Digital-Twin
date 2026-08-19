@@ -139,18 +139,12 @@ The flagship scenario simultaneously applies:
 - a credit PD multiplier;
 - a cloud/payment impairment with its own timing and capacity assumptions.
 
-## Main calculations
+![Combined Stress Impact Map](https://github.com/debabratapruseth/AI-Financial-Digital-Twin/blob/main/Reference%20Materials/Combined%20Stress%20Impact%20Map.png)
 
-### Market loss
-### Credit loss
-### Deposit outflow and liquidity
-### Prototype LCR
-### Operational loss
-### Total estimated loss
-### Capital
-### Risk limits and severity
+![Combined Stress Impact Value](https://github.com/debabratapruseth/AI-Financial-Digital-Twin/blob/main/Reference%20Materials/Combined%20Stress%20Impact%20Values.png)
 
-## Monte Carlo simulation
+
+#### Monte Carlo simulation
 
 The notebook runs 1,000 stochastic variations of `combined_stress` using seed 42. It samples:
 
@@ -162,9 +156,13 @@ The notebook runs 1,000 stochastic variations of `combined_stress` using seed 42
 
 It reports P5, median, P95, and separate breach probabilities for LCR, cash, CET1, payment availability, loss, and recovery time.
 
-The current Monte Carlo is designed for combined stress. 
+The current Monte Carlo is designed for combined stress only. 
 
-## Management actions
+![Montecarlo Simulation](https://github.com/debabratapruseth/AI-Financial-Digital-Twin/blob/main/Reference%20Materials/Montecarlo%20Simulation.png)
+
+#### Management actions
+
+For the combined stress analysis, the code also recommends follow up management action.
 
 Supported actions:
 
