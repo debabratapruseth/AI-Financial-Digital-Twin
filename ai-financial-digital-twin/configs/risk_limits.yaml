@@ -1,0 +1,8 @@
+limits:
+  lcr: {warning: 1.10, critical: 1.00, direction: min}
+  cet1_ratio: {warning: 0.12, critical: 0.105, direction: min}
+  cash_position_bn: {warning: 5.0, critical: 2.0, direction: min}
+  payment_availability: {warning: 0.98, critical: 0.95, direction: min}
+  payment_backlog_bn: {warning: 2.0, critical: 5.0, direction: max}
+  total_estimated_loss_bn: {warning: 1.0, critical: 2.0, direction: max}
+  recovery_time_hours: {warning: 4.0, critical: 8.0, direction: max}

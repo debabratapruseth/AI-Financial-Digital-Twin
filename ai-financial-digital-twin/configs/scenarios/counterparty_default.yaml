@@ -1,0 +1,7 @@
+name: Major counterparty default
+description: Deterministic EAD times LGD loss for a synthetic counterparty.
+shocks:
+  credit:
+    default_counterparty: CP-006
+    pd_multiplier: 1.25
+

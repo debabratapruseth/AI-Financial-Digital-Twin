@@ -1,0 +1,12 @@
+name: Cloud Region A failure
+description: Primary cloud failure propagating into customer channels and payments.
+shocks:
+  operational:
+    enabled: true
+    source: Cloud Region A
+    outage_start_hour: 2
+    recovery_time_hours: 5
+    impaired_capacity_fraction: 0.10
+    backup_activation_hours: 2
+    backup_capacity_fraction: 0.70
+

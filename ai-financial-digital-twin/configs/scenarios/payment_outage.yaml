@@ -1,0 +1,12 @@
+name: Payment system unavailable
+description: Payment platform impairment and recovery.
+shocks:
+  operational:
+    enabled: true
+    source: Payment Network
+    outage_start_hour: 2
+    recovery_time_hours: 4
+    impaired_capacity_fraction: 0.05
+    backup_activation_hours: 3
+    backup_capacity_fraction: 0.55
+
