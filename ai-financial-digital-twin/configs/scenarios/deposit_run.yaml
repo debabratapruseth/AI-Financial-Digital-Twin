@@ -1,0 +1,5 @@
+name: Deposit withdrawal stress
+description: Segment-specific incremental withdrawals.
+shocks:
+  withdrawal_rates: {Retail: 0.08, SME: 0.12, Corporate: 0.20, Private Banking: 0.10}
+

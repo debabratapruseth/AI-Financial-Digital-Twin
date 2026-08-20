@@ -1,0 +1,12 @@
+name: Cloud Region A eight-hour failure
+description: Infrastructure-only failure with delayed backup activation and post-recovery backlog clearance.
+shocks:
+  operational:
+    enabled: true
+    failed_region: Cloud Region A
+    outage_duration_hours: 8
+    backup_region: Cloud Region B
+    backup_activation_delay_hours: 3
+    backup_capacity_pct: 0.70
+    post_recovery_capacity_pct: 1.25
+    simulation_horizon_hours: 24

@@ -1,0 +1,5 @@
+name: USD falls 10 percent
+description: Revalues the unhedged synthetic USD exposure.
+shocks:
+  fx: {USD: -0.10}
+

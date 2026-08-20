@@ -1,0 +1,27 @@
+currency: USD
+units: USD billions
+balance_sheet:
+  cash_reserves: 10.0
+  securities: 18.0
+  customer_loans: 72.0
+  retail_deposits: 42.0
+  sme_deposits: 12.0
+  corporate_deposits: 24.0
+  wholesale_funding: 12.0
+  other_liabilities: 2.0
+  cet1_capital: 8.0
+assumptions:
+  hqla_securities_haircut: 0.15
+  baseline_30d_outflow_rates: {Retail: 0.05, SME: 0.10, Corporate: 0.15, Private Banking: 0.08}
+  inflow_cap_bn: 2.0
+  risk_weight_density: 0.72
+  annual_operating_income_bn: 4.0
+  outage_loss_per_hour_bn: 0.008
+  customer_impact_cost_bn: 0.00000002
+  margin_pressure_multiplier: 0.04
+  volatility_loss_sensitivity: 0.12
+  payment_backlog_loss_per_bn: 0.0005
+  emergency_funding_annual_rate: 0.05
+  liquidity_facility_annual_rate: 0.045
+  asset_sale_haircut: 0.02
+  outage_withdrawal_response_rate: 0.05

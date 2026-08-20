@@ -1,0 +1,5 @@
+name: Market volatility doubles
+description: Simplified volatility-driven market loss.
+shocks:
+  volatility_multiplier: 2.0
+

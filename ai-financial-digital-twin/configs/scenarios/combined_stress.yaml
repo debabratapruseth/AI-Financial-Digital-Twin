@@ -1,0 +1,18 @@
+name: Flagship combined stress
+description: USD fall, volatility, cloud/payment impairment, withdrawals, and credit deterioration.
+shocks:
+  fx: {USD: -0.10}
+  volatility_multiplier: 2.0
+  withdrawal_rates: {Retail: 0.08, SME: 0.12, Corporate: 0.20, Private Banking: 0.10}
+  credit:
+    default_counterparty: CP-006
+    pd_multiplier: 1.5
+  operational:
+    enabled: true
+    source: Cloud Region A
+    outage_start_hour: 2
+    recovery_time_hours: 4
+    impaired_capacity_fraction: 0.10
+    backup_activation_hours: 2
+    backup_capacity_fraction: 0.65
+
