@@ -456,7 +456,7 @@ The main entry point is `notebooks/master_runner.ipynb`.
 
 ### Google Colab
 
-1. Copy the repository folder to Google Drive.
+1. Extract the zip file. Copy the repository folder to Google Drive.
 2. Open `notebooks/master_runner.ipynb` in Colab.
 3. Change `PROJECT_ROOT` only if your Drive path differs.
 4. Store `OPENAI_API_KEY` as a Colab secret if AI narration is required.
@@ -464,7 +464,7 @@ The main entry point is `notebooks/master_runner.ipynb`.
 
 The notebook installs missing dependencies and writes outputs back into the repository folder.
 
-We have used Google Drive as Repo and Google Colab as IDE. You can use your own local repo or github and IDE of your choice. 
+We have used Google Drive and Google Colab as IDE. You can use your own local repo / github and IDE of your choice. 
 
 ## Outputs
 
@@ -515,60 +515,5 @@ Current limitations include:
 * The model has not been calibrated or back-tested against a real bank.
 * Results should not be interpreted as forecasts or real-world event probabilities.
 
-Production use would require governed source data, lineage, access control, scenario approval, calibration, independent validation, monitoring, back-testing, change control, and regulatory interpretation.
 
-## Extending the Digital Twin
 
-The prototype is deliberately compact so that its mechanics remain understandable.
-
-Possible extensions include:
-
-Technology and operational risk
-
-* additional cloud regions;
-* active-active architectures;
-* application-specific recovery times;
-* cyber incidents;
-* vendor outages;
-* network failures;
-* data-center dependencies.
-
-Financial risk
-
-* interest-rate shocks;
-* securities repricing;
-* richer FX portfolios;
-* collateral dynamics;
-* wholesale funding;
-* intraday liquidity.
-
-Credit risk
-
-* rating migration;
-* sector contagion;
-* correlated defaults;
-* concentration risk;
-* wrong-way risk.
-
-Customer behaviour
-
-* dynamic withdrawal curves;
-* customer confidence effects;
-* channel-specific behavior;
-* nonlinear deposit responses.
-
-Simulation
-
-* stochastic backup activation;
-* stochastic backup capacity;
-* correlated Monte Carlo variables;
-* empirically calibrated distributions;
-* scenario ensembles.
-
-AI
-
-* natural-language scenario creation;
-* scenario validation agents;
-* retrieval over policies and playbooks;
-* evidence-linked executive reports;
-* human approval workflows.
