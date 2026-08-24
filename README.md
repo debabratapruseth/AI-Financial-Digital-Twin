@@ -7,6 +7,10 @@ The project creates a virtual banking environment where you can inject stress ev
 > [!IMPORTANT]
 > Synthetic prototype only. All institutions, customers, counterparties, exposures, scenarios, metrics, and results are synthetic. This project is not a regulatory stress-testing model, financial advice, an approved bank risk model, or a substitute for independent model validation.
 
+## Companion Blog
+
+Refer the companion blog for a detailed walkthrough of the project - https://debabratapruseth.com/build-ai-financial-digital-twin-python/
+
 ## Why this project?
 
 A cloud outage is rarely just a technology problem. Consider this chain:
